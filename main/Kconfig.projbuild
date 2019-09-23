@@ -1,0 +1,9 @@
+menu "SIGSTREN Configuration"
+
+    config SSID_TO_SCAN
+        string "WiFi SSID"
+        default "myssid"
+        help
+            SSID (network name) that you want to measure the strength.
+
+endmenu
