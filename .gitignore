@@ -3,7 +3,8 @@
 ##
 
 build/
-sdkconfig
+.vscode/
+sdkconfig*
 
 ##
 # Default Github for C projects

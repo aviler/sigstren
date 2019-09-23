@@ -2,7 +2,7 @@ menu "SIGSTREN Configuration"
 
     config SSID_TO_SCAN
         string "WiFi SSID"
-        default "QWIC"
+        default "myssid"
         help
             SSID (network name) that you want to measure the strength.
 
