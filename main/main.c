@@ -21,7 +21,11 @@
 #define EXAMPLE_I2C_NACK_VAL 0x1
 
 #define SSID_TO_SCAN CONFIG_SSID_TO_SCAN // Run $idf.py menuconfig to set this value. Default: "myssid"
-#define MAX_APs 5                        // Investigate: For some reasos using 20 as max_aps crash everytime in the ap list print loop
+#define MAX_APs 5
+
+#define COLOR_RED 0
+#define COLOR_YELLOW 1
+#define COLOR_GREEN 2
 
 static const char *TAG = "SIGSTREN";
 
@@ -30,7 +34,7 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 void configWIFI(void);
 void loop_task(void *pvParameter);
 void configRGBLed(void);
-void blinkRGBLed(void);
+void setRGBLedColor(uint8_t color);
 void app_main(void);
 
 wifi_scan_config_t scan_config = {
@@ -51,7 +55,29 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 
         if (ap_num > 0)
         {
+            // Log
             ESP_LOGI(TAG, "Found %s AP! Signal Strength: %d", (char *)ap_records[0].ssid, ap_records[0].rssi);
+
+            if (ap_records[0].rssi < -80)
+            {
+                setRGBLedColor(COLOR_RED);
+            }
+            else if ((ap_records[0].rssi > -80) && (ap_records[0].rssi < -50))
+            {
+                setRGBLedColor(COLOR_YELLOW);
+            }
+            else if (ap_records[0].rssi > -50)
+            {
+                setRGBLedColor(COLOR_GREEN);
+            }
+            else
+            {
+                setRGBLedColor(-99); // Or basically blue flashing
+            }
+        }
+        else
+        {
+            setRGBLedColor(-99); // Or basically blue flashing
         }
     }
 }
@@ -95,15 +121,50 @@ void configRGBLed(void)
     i2c_driver_install(i2c_master_port, conf.mode, 0, 0, 0);
 }
 
-void blinkRGBLed(void)
+void stopRGBLedScript(void) {
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (EXAMPLE_I2C_ADDR << 1) | EXAMPLE_I2C_WRITE_BIT, EXAMPLE_I2C_ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, 'o', EXAMPLE_I2C_ACK_CHECK_EN); // Stop any script
+    i2c_master_cmd_begin(EXAMPLE_I2C_PORT_NUMBER, cmd, 1000 / portTICK_RATE_MS);
+    i2c_master_stop(cmd);
+}
+
+void setRGBLedColor(uint8_t color)
 {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (EXAMPLE_I2C_ADDR << 1) | EXAMPLE_I2C_WRITE_BIT, EXAMPLE_I2C_ACK_CHECK_EN);
-    i2c_master_write_byte(cmd, 'c', EXAMPLE_I2C_ACK_CHECK_EN);  // Command fade to color
-    i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // RED
-    i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // GREEN
-    i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // BLUE
+
+    switch (color)
+    {
+    case COLOR_RED:
+        i2c_master_write_byte(cmd, 'c', EXAMPLE_I2C_ACK_CHECK_EN);  // Command fade to color
+        i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // RED
+        i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // GREEN
+        i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // BLUE
+        break;
+
+    case COLOR_YELLOW:
+        i2c_master_write_byte(cmd, 'c', EXAMPLE_I2C_ACK_CHECK_EN);  // Command fade to color
+        i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // RED
+        i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // GREEN
+        i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // BLUE
+        break;
+
+    case COLOR_GREEN:
+        i2c_master_write_byte(cmd, 'c', EXAMPLE_I2C_ACK_CHECK_EN);  // Command fade to color
+        i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // RED
+        i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // GREEN
+        i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // BLUE
+        break;
+
+    default:
+        i2c_master_write_byte(cmd, 'c', EXAMPLE_I2C_ACK_CHECK_EN);  // RGB Led script blue flash
+        i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // RED
+        i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // GREEN
+        i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // BLUE
+    }
 
     i2c_master_cmd_begin(EXAMPLE_I2C_PORT_NUMBER, cmd, 1000 / portTICK_RATE_MS);
     i2c_master_stop(cmd);
@@ -122,10 +183,10 @@ void app_main(void)
 
     configWIFI();
 
-    // // configure and run the scan process in blocking mode
-    // ESP_ERROR_CHECK(esp_wifi_scan_start(&scan_config, true));
-
     configRGBLed();
+
+    // in case there's still some led script running
+    stopRGBLedScript();
 
     // infinite loop
     xTaskCreate(&loop_task, "loop_task", 2048, NULL, 5, NULL);
