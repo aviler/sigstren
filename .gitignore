@@ -1,4 +1,9 @@
 ##
+# macOS related
+#
+.DS_Store
+
+##
 # ESP-IDF related
 ##
 
