@@ -8,6 +8,8 @@
 
 #include "driver/i2c.h"
 
+#include "ssd1306.h"
+
 #define EXAMPLE_I2C_PORT_NUMBER I2C_NUM_1 // I2C port number
 #define EXAMPLE_I2C_FREQ_HZ 100000        // I2C master clock frequency
 #define EXAMPLE_I2C_SCL_GPIO 22           // GPIO pin
@@ -180,6 +182,15 @@ void app_main(void) {
 
   // in case there's still some led script running
   stopRGBLedScript();
+
+  ssd1306_setFixedFont(ssd1306xled_font6x8);
+  ssd1306_clearScreen();
+  ssd1306_printFixed(0, 8, "Normal text", STYLE_NORMAL);
+  ssd1306_printFixed(0, 16, "Bold text", STYLE_BOLD);
+  ssd1306_printFixed(0, 24, "Italic text", STYLE_ITALIC);
+  ssd1306_negativeMode();
+  ssd1306_printFixed(0, 32, "Inverted bold", STYLE_BOLD);
+  ssd1306_positiveMode();
 
   // infinite loop
   xTaskCreate(&loop_task, "loop_task", 2048, NULL, 5, NULL);
