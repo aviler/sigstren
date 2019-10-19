@@ -6,3 +6,5 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(sigstren)
 
 # add subdiretories
+add_subdirectory(components)
+add_subdirectory(main)

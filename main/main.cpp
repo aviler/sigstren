@@ -1,0 +1,224 @@
+
+#include "esp_event.h"
+#include "esp_log.h"
+#include "esp_wifi.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/event_groups.h"
+#include "nvs_flash.h"
+
+#include "driver/i2c.h"
+
+#include "nano_gfx.h"
+#include "ssd1306.h"
+
+extern "C" {
+void app_main(void);
+}
+
+// #define EXAMPLE_I2C_PORT_NUMBER I2C_NUM_1 // I2C port number
+// #define EXAMPLE_I2C_FREQ_HZ 100000        // I2C master clock frequency
+// #define EXAMPLE_I2C_SCL_GPIO 22           // GPIO pin
+// #define EXAMPLE_I2C_SDA_GPIO 21           // GPIO pin
+// #define EXAMPLE_I2C_ADDR 0x09
+// #define EXAMPLE_I2C_WRITE_BIT I2C_MASTER_WRITE
+// #define EXAMPLE_I2C_READ_BIT I2C_MASTER_READ
+// #define EXAMPLE_I2C_ACK_CHECK_EN 0x1
+// #define EXAMPLE_I2C_ACK_CHECK_DIS 0x0
+// #define EXAMPLE_I2C_ACK_VAL 0x0
+// #define EXAMPLE_I2C_NACK_VAL 0x1
+
+// #define SSID_TO_SCAN
+//   CONFIG_SSID_TO_SCAN // Run $idf.py menuconfig to set this value. Default:
+//                       // "myssid"
+// #define MAX_APs 5
+
+// #define COLOR_RED 0
+// #define COLOR_YELLOW 1
+// #define COLOR_GREEN 2
+
+static const char *TAG = "SIGSTREN";
+
+// Prototypes
+// static void event_handler(void *arg, esp_event_base_t event_base,
+//                           int32_t event_id, void *event_data);
+// void configWIFI(void);
+void loop_task(void *pvParameter);
+// void configRGBLed(void);
+// void setRGBLedColor(uint8_t color);
+
+// wifi_scan_config_t scan_config = {.ssid = (uint8_t *)SSID_TO_SCAN,
+//                                   .bssid = 0,
+//                                   .channel = 0,
+//                                   .show_hidden = true};
+
+// static void event_handler(void *arg, esp_event_base_t event_base,
+//                           int32_t event_id, void *event_data) {
+//   // if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_SCAN_DONE) {
+//   //   // get the list of APs found in the last scan
+//   //   uint16_t ap_num = MAX_APs;
+//   //   wifi_ap_record_t ap_records[MAX_APs];
+//   //   ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_num, ap_records));
+
+//   //   if (ap_num > 0) {
+//   //     // Log
+//   //     ESP_LOGI(TAG, "Found %s AP! Signal Strength: %d",
+//   //              (char *)ap_records[0].ssid, ap_records[0].rssi);
+
+//   //     if (ap_records[0].rssi < -80) {
+//   //       setRGBLedColor(COLOR_RED);
+//   //     } else if ((ap_records[0].rssi > -80) && (ap_records[0].rssi < -50))
+//   {
+//   //       setRGBLedColor(COLOR_YELLOW);
+//   //     } else if (ap_records[0].rssi > -50) {
+//   //       setRGBLedColor(COLOR_GREEN);
+//   //     } else {
+//   //       setRGBLedColor(-99); // Or basically blue flashing
+//   //     }
+//   //   } else {
+//   //     setRGBLedColor(-99); // Or basically blue flashing
+//   //   }
+//   // }
+// }
+
+// void configWIFI(void) {
+//   // initialize the tcp stack
+//   // tcpip_adapter_init();
+
+//   // // initialize the wifi event handler
+//   // ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+//   // // configure, initialize and start the wifi driver
+//   // wifi_init_config_t wifi_config = WIFI_INIT_CONFIG_DEFAULT();
+//   // ESP_ERROR_CHECK(esp_wifi_init(&wifi_config));
+//   // ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
+//   //                                            &event_handler, NULL));
+//   // ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+//   // ESP_ERROR_CHECK(esp_wifi_start());
+// }
+
+void loop_task(void *pvParameter) {
+  while (1) {
+    // ESP_ERROR_CHECK(esp_wifi_scan_start(&scan_config, true));
+    vTaskDelay(1000 / portTICK_RATE_MS);
+  }
+}
+
+// void configRGBLed(void) {
+//   // int i2c_master_port = EXAMPLE_I2C_PORT_NUMBER;
+//   // i2c_config_t conf;
+//   // conf.mode = I2C_MODE_MASTER;
+//   // conf.sda_io_num = EXAMPLE_I2C_SDA_GPIO;
+//   // conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+//   // conf.scl_io_num = EXAMPLE_I2C_SCL_GPIO;
+//   // conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+//   // conf.master.clk_speed =
+//   //     EXAMPLE_I2C_FREQ_HZ; // I2C frequency is the clock speed for a
+//   complete
+//   //                          // high low clock sequence
+//   // i2c_param_config(i2c_master_port, &conf);
+//   // i2c_driver_install(i2c_master_port, conf.mode, 0, 0, 0);
+// }
+
+// void stopRGBLedScript(void) {
+//   // i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+//   // i2c_master_start(cmd);
+//   // i2c_master_write_byte(cmd, (EXAMPLE_I2C_ADDR << 1) |
+//   EXAMPLE_I2C_WRITE_BIT,
+//   //                       EXAMPLE_I2C_ACK_CHECK_EN);
+//   // i2c_master_write_byte(cmd, 'o', EXAMPLE_I2C_ACK_CHECK_EN); // Stop any
+//   // script i2c_master_cmd_begin(EXAMPLE_I2C_PORT_NUMBER, cmd, 1000 /
+//   // portTICK_RATE_MS); i2c_master_stop(cmd);
+// }
+
+// void setRGBLedColor(uint8_t color) {
+//   // i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+//   // i2c_master_start(cmd);
+//   // i2c_master_write_byte(cmd, (EXAMPLE_I2C_ADDR << 1) |
+//   EXAMPLE_I2C_WRITE_BIT,
+//   //                       EXAMPLE_I2C_ACK_CHECK_EN);
+
+//   // switch (color) {
+//   // case COLOR_RED:
+//   //   i2c_master_write_byte(cmd, 'c',
+//   //                         EXAMPLE_I2C_ACK_CHECK_EN); // Command fade to
+//   color
+//   //   i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // RED
+//   //   i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // GREEN
+//   //   i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // BLUE
+//   //   break;
+
+//   // case COLOR_YELLOW:
+//   //   i2c_master_write_byte(cmd, 'c',
+//   //                         EXAMPLE_I2C_ACK_CHECK_EN); // Command fade to
+//   color
+//   //   i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // RED
+//   //   i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // GREEN
+//   //   i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // BLUE
+//   //   break;
+
+//   // case COLOR_GREEN:
+//   //   i2c_master_write_byte(cmd, 'c',
+//   //                         EXAMPLE_I2C_ACK_CHECK_EN); // Command fade to
+//   color
+//   //   i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // RED
+//   //   i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // GREEN
+//   //   i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // BLUE
+//   //   break;
+
+//   // default:
+//   //   i2c_master_write_byte(
+//   //       cmd, 'c', EXAMPLE_I2C_ACK_CHECK_EN); // RGB Led script blue flash
+//   //   i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // RED
+//   //   i2c_master_write_byte(cmd, 0x00, EXAMPLE_I2C_ACK_CHECK_EN); // GREEN
+//   //   i2c_master_write_byte(cmd, 0xff, EXAMPLE_I2C_ACK_CHECK_EN); // BLUE
+//   // }
+
+//   // i2c_master_cmd_begin(EXAMPLE_I2C_PORT_NUMBER, cmd, 1000 /
+//   // portTICK_RATE_MS); i2c_master_stop(cmd);
+// }
+
+void app_main() {
+  // Initialize NVS
+  esp_err_t ret = nvs_flash_init();
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
+      ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    ESP_ERROR_CHECK(nvs_flash_erase());
+    ret = nvs_flash_init();
+  }
+  ESP_ERROR_CHECK(ret);
+
+  ESP_LOGI(TAG, "Just ran once");
+  // configWIFI();
+
+  // configRGBLed();
+
+  // // in case there's still some led script running
+  // stopRGBLedScript();
+
+  /* Select the font to use with menu and all font functions */
+  ssd1306_setFixedFont(ssd1306xled_font6x8);
+
+  ssd1306_128x64_i2c_init();
+  //    ssd1306_128x64_spi_init(-1, 0, 1);  // Use this line for nano pi (RST
+  //    not used, 0=CE, gpio1=D/C) ssd1306_128x64_spi_init(3,4,5);     // Use
+  //    this line for Atmega328p (3=RST, 4=CE, 5=D/C)
+  //    ssd1306_128x64_spi_init(24, 0, 23); // Use this line for Raspberry
+  //    (gpio24=RST, 0=CE, gpio23=D/C) ssd1306_128x64_spi_init(22, 5, 21); //
+  //    Use this line for ESP32 (VSPI)  (gpio22=RST, gpio5=CE for VSPI,
+  //    gpio21=D/C) composite_video_128x64_mono_init(); // Use this line for
+  //    ESP32 with Composite video support
+
+  ssd1306_clearScreen();
+
+  ssd1306_setFixedFont(ssd1306xled_font6x8);
+  ssd1306_clearScreen();
+  ssd1306_printFixed(0, 8, "Normal text", STYLE_NORMAL);
+  ssd1306_printFixed(0, 16, "Bold text", STYLE_BOLD);
+  ssd1306_printFixed(0, 24, "Italic text", STYLE_ITALIC);
+  ssd1306_negativeMode();
+  ssd1306_printFixed(0, 32, "Inverted bold", STYLE_BOLD);
+  ssd1306_positiveMode();
+
+  // infinite loop
+  // xTaskCreate(&loop_task, "loop_task", 2048, NULL, 5, NULL);
+}

@@ -19,7 +19,7 @@ set(header ${header_path}/src
 
 # set source files
 set(src_path "${CMAKE_CURRENT_SOURCE_DIR}/src")
-set(src ${src_path}/ssd1306_fonts.c
+set(c_src ${src_path}/ssd1306_fonts.c
 	${src_path}/ssd1306_generic.c
 	${src_path}/ssd1306_1bit.c
 	${src_path}/ssd1306_8bit.c
@@ -53,8 +53,9 @@ set(src ${src_path}/ssd1306_fonts.c
 	${src_path}/intf/vga/vga.c
 	${src_path}/intf/vga/atmega328p/vga128x64.c
 	${src_path}/intf/vga/atmega328p/vga96x40.c
-	${src_path}/ssd1306_uart.c
-	${src_path}/nano_engine/canvas.cpp
+	${src_path}/ssd1306_uart.c)
+
+set(cpp_src ${src_path}/nano_engine/canvas.cpp
 	${src_path}/nano_engine/core.cpp
 	${src_path}/nano_gfx.cpp
 	${src_path}/sprite_pool.cpp
@@ -63,6 +64,11 @@ set(src ${src_path}/ssd1306_fonts.c
 	${src_path}/intf/vga/esp32/vga128x64.cpp
 	${src_path}/intf/vga/esp32/CompositeOutput.cpp)
 
+#set_source_files_properties(cpp_src PROPERTIES LANGUAGE CXX)
+
+set(src ${c_src} ${cpp_src})
+
+#add_library(ssd1306 ${src})
 
 idf_component_register(SRCS ${src}
                     INCLUDE_DIRS ${header})
