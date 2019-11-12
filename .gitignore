@@ -1,3 +1,20 @@
+##
+# macOS related
+#
+.DS_Store
+
+##
+# ESP-IDF related
+##
+
+build/
+.vscode/
+sdkconfig*
+
+##
+# Default Github for C projects
+##
+
 # Prerequisites
 *.d
 
