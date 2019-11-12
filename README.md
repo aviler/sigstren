@@ -59,4 +59,4 @@ Sigstren will look for the configured WiFi SSID and based on its recurrent scans
 
 Changelog
 ---------
-
+0.0.1 - First release
